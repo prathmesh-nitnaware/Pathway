@@ -1,70 +1,194 @@
 # Pathway - College Discovery Platform
 
-Pathway is a modern, full-stack web application designed to help students discover, compare, and discuss engineering colleges across India. Built with Next.js 14 and powered by AI, Pathway simplifies the complex process of college selection.
+Pathway is a full-stack web application that helps students discover, compare, and discuss engineering colleges across India. It features AI-powered assistance, community discussions, and a role-based admin analytics portal.
 
-## 🌟 Features
+---
 
-- **Smart College Discovery**: Browse top colleges with rich details including fees, placement statistics, and user ratings.
-- **AI Assistant Chatbot**: Leveraging Google Gemini GenAI, students can chat with a smart assistant to ask questions about colleges, cutoffs, and placements.
-- **Compare Colleges**: Add up to 3 colleges side-by-side to compare fees, ratings, and average packages.
-- **Community Discussions**: A built-in Q&A forum where students can ask questions and reply to existing threads.
-- **Save & Favorite**: Authenticated users can save their favorite colleges to a personalized dashboard for easy access later.
-- **Secure Authentication**: Robust user authentication handled via NextAuth.js.
+## Features
 
-## 🛠️ Tech Stack
+### For Students
+- **College Listings with Search & Filters** — Browse colleges with real-time search, location filters, fee range filters, and pagination.
+- **College Detail Pages** — View detailed information including overview, courses offered, placement statistics, and user reviews.
+- **Compare Colleges** — Select up to 3 colleges for a side-by-side comparison of fees, ratings, placements, and more.
+- **Community Q&A Forum** — Ask questions, browse discussions, and reply to existing threads.
+- **Save & Favorite** — Authenticated users can save colleges to a personal dashboard for quick reference.
+- **AI Chatbot** — A floating chatbot assistant powered by Google Gemini AI that answers queries about colleges, cutoffs, and placements. Available only to logged-in users.
 
-- **Frontend**: Next.js 14 (App Router), React, Tailwind CSS
-- **Backend**: Next.js Route Handlers
-- **Database**: PostgreSQL (hosted on Neon)
-- **ORM**: Prisma
-- **Authentication**: NextAuth.js (Credentials Provider)
-- **AI Integration**: Google GenAI SDK (`@google/genai`)
-- **Icons & UI**: Lucide React, React Hot Toast
+### For Admins
+- **Analytics Dashboard** — A dedicated `/admin` portal showing platform-wide statistics: total colleges, registered users, forum questions, and answers.
+- **College Management** — Add or delete college records directly from the admin UI without touching the database.
+- **Role-Based Access** — The admin portal is completely isolated from the student-facing UI. Navbar and chatbot are hidden on admin pages.
 
-## 🚀 Getting Started
+---
+
+## Tech Stack
+
+| Layer           | Technology                                                  |
+|-----------------|-------------------------------------------------------------|
+| Frontend        | Next.js 16 (App Router), React 19, Tailwind CSS 4          |
+| Backend         | Next.js API Route Handlers (Serverless Functions)           |
+| Database        | PostgreSQL (Neon)                                           |
+| ORM             | Prisma 5                                                    |
+| Authentication  | NextAuth.js 4 (Credentials Provider with bcrypt)            |
+| AI Integration  | Google Gemini AI (`@google/genai` SDK, `gemini-2.0-flash`)  |
+| State Mgmt      | Zustand                                                     |
+| UI Components   | Lucide React (icons), React Hot Toast (notifications)       |
+
+---
+
+## Database Schema
+
+The application uses 7 relational models:
+
+```
+User ──┬── SavedCollege ──── College ──┬── Course
+       ├── Review ───────────────────────┘
+       ├── Question ──── Answer
+       └── (role: USER | ADMIN)
+```
+
+- **User** — Stores credentials, role (`USER`/`ADMIN`), and relations to saved colleges, reviews, questions, and answers.
+- **College** — Core entity with name, location, fees, rating, image, placement stats, and year of establishment.
+- **Course** — Belongs to a college; stores course name, duration, and fees.
+- **Review** — User-submitted rating and review text for a college.
+- **SavedCollege** — Join table linking users to their saved/favorited colleges.
+- **Question** — Forum post created by a user with a title and body.
+- **Answer** — Reply to a question, authored by a user.
+
+---
+
+## Project Structure
+
+```
+college-discovery/
+├── prisma/
+│   ├── schema.prisma          # Database schema with all models
+│   └── seed.ts                # Seed script with real college data
+├── src/
+│   ├── app/
+│   │   ├── admin/             # Admin analytics portal (layout + page)
+│   │   ├── api/
+│   │   │   ├── admin/         # Admin-only API routes (colleges CRUD, stats)
+│   │   │   ├── auth/          # NextAuth.js authentication handler
+│   │   │   ├── chat/          # Gemini AI chatbot endpoint
+│   │   │   ├── colleges/      # College listing and detail APIs
+│   │   │   ├── compare/       # Comparison data API
+│   │   │   ├── discussions/   # Q&A forum CRUD (questions + answers)
+│   │   │   └── save/          # Save/unsave college endpoints
+│   │   ├── colleges/          # College listing and detail pages
+│   │   ├── compare/           # Side-by-side comparison page
+│   │   ├── discussions/       # Q&A forum pages
+│   │   ├── login/             # Login page
+│   │   ├── saved/             # Saved colleges dashboard
+│   │   ├── signup/            # Registration page
+│   │   ├── layout.tsx         # Root layout (Navbar, Chatbot, Providers)
+│   │   └── page.tsx           # Homepage with search and filters
+│   ├── components/
+│   │   ├── Chatbot.tsx        # Floating AI chatbot widget
+│   │   ├── Navbar.tsx         # Global navigation bar
+│   │   ├── Providers.tsx      # NextAuth session provider wrapper
+│   │   └── colleges/          # CollegeCard, CollegeCardSkeleton
+│   ├── lib/
+│   │   ├── auth.ts            # NextAuth configuration and options
+│   │   └── prisma.ts          # Prisma client singleton
+│   └── store/
+│       └── useCompareStore.ts # Zustand store for comparison feature
+├── .env                       # Environment variables (not committed)
+├── .gitignore
+├── package.json
+├── tsconfig.json
+└── README.md
+```
+
+---
+
+## Getting Started
 
 ### Prerequisites
 
-- Node.js 18+ installed
-- A PostgreSQL database URL (we recommend Neon)
-- A Google Gemini API Key (from Google AI Studio)
+- Node.js 18+
+- A PostgreSQL database (we use [Neon](https://neon.tech) — free tier available)
+- A Google Gemini API Key ([get one here](https://aistudio.google.com/apikey))
 
 ### Installation
 
-1. Clone the repository and install dependencies:
-   ```bash
-   npm install
-   ```
+```bash
+git clone https://github.com/prathmesh-nitnaware/Pathway.git
+cd Pathway
+npm install
+```
 
-2. Set up your environment variables by creating a `.env` file at the root of the project:
-   ```env
-   DATABASE_URL="postgresql://username:password@your-neon-hostname.neon.tech/neondb?sslmode=require"
-   NEXTAUTH_SECRET="your-super-secret-key"
-   NEXTAUTH_URL="http://localhost:3000"
-   GEMINI_API_KEY="your-gemini-api-key"
-   ```
+### Environment Variables
 
-3. Push the Prisma schema to your database to create the necessary tables:
-   ```bash
-   npx prisma db push
-   ```
+Create a `.env` file in the project root:
 
-4. Populate the database with initial college data:
-   ```bash
-   npx prisma db seed
-   ```
+```env
+DATABASE_URL="postgresql://user:password@host/dbname?sslmode=require"
+NEXTAUTH_SECRET="generate-a-random-secret-string"
+NEXTAUTH_URL="http://localhost:3000"
+GEMINI_API_KEY="your-gemini-api-key"
+```
 
-5. Start the development server:
-   ```bash
-   npm run dev
-   ```
+### Database Setup
 
-6. Open [http://localhost:3000](http://localhost:3000) in your browser to see the application!
+```bash
+npx prisma db push      # Create tables from schema
+npx prisma db seed       # Populate with sample college data
+```
 
-## 📂 Project Structure
+### Run Development Server
 
-- `/src/app`: Next.js App Router pages and API routes
-- `/src/components`: Reusable UI components (Navbar, CollegeCard, etc.)
-- `/src/lib`: Utility functions and Prisma client initialization
-- `/src/store`: Zustand state management for the comparison feature
-- `/prisma`: Database schema and seed scripts
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+---
+
+## API Endpoints
+
+| Method | Endpoint                          | Auth Required | Description                        |
+|--------|-----------------------------------|---------------|------------------------------------|
+| GET    | `/api/colleges`                   | No            | List colleges (paginated, filterable) |
+| GET    | `/api/colleges/:id`               | No            | Get single college details         |
+| POST   | `/api/chat`                       | Yes           | Send message to AI chatbot         |
+| GET    | `/api/discussions`                | No            | List all forum questions           |
+| POST   | `/api/discussions`                | Yes           | Create a new question              |
+| POST   | `/api/discussions/:id/answers`    | Yes           | Post an answer to a question       |
+| GET    | `/api/compare`                    | No            | Get comparison data for college IDs|
+| GET    | `/api/save`                       | Yes           | Get user's saved colleges          |
+| POST   | `/api/save`                       | Yes           | Save a college                     |
+| DELETE | `/api/save/:id`                   | Yes           | Remove a saved college             |
+| GET    | `/api/admin/colleges`             | Admin         | List all colleges (admin view)     |
+| POST   | `/api/admin/colleges`             | Admin         | Add a new college                  |
+| DELETE | `/api/admin/colleges`             | Admin         | Delete a college                   |
+| GET    | `/api/admin/stats`                | Admin         | Get platform analytics             |
+
+---
+
+## Deployment
+
+This is a Next.js full-stack application. Deploy the entire app on **Vercel** — it handles both the frontend and all API routes as serverless functions automatically.
+
+1. Push to GitHub.
+2. Import the repository on [vercel.com](https://vercel.com).
+3. Add the 4 environment variables (`DATABASE_URL`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, `GEMINI_API_KEY`).
+4. Deploy.
+
+---
+
+## Default Accounts
+
+After running the seed script, the following accounts are available:
+
+| Role  | Email                | Password      |
+|-------|----------------------|---------------|
+| Admin | `admin@pathway.com`  | `admin123`    |
+| User  | `test@example.com`   | `password123` |
+
+---
+
+## License
+
+This project is built for educational and demonstration purposes.
