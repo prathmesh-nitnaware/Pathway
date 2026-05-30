@@ -1,36 +1,70 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Pathway - College Discovery Platform
 
-## Getting Started
+Pathway is a modern, full-stack web application designed to help students discover, compare, and discuss engineering colleges across India. Built with Next.js 14 and powered by AI, Pathway simplifies the complex process of college selection.
 
-First, run the development server:
+## 🌟 Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Smart College Discovery**: Browse top colleges with rich details including fees, placement statistics, and user ratings.
+- **AI Assistant Chatbot**: Leveraging Google Gemini GenAI, students can chat with a smart assistant to ask questions about colleges, cutoffs, and placements.
+- **Compare Colleges**: Add up to 3 colleges side-by-side to compare fees, ratings, and average packages.
+- **Community Discussions**: A built-in Q&A forum where students can ask questions and reply to existing threads.
+- **Save & Favorite**: Authenticated users can save their favorite colleges to a personalized dashboard for easy access later.
+- **Secure Authentication**: Robust user authentication handled via NextAuth.js.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🛠️ Tech Stack
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Frontend**: Next.js 14 (App Router), React, Tailwind CSS
+- **Backend**: Next.js Route Handlers
+- **Database**: PostgreSQL (hosted on Neon)
+- **ORM**: Prisma
+- **Authentication**: NextAuth.js (Credentials Provider)
+- **AI Integration**: Google GenAI SDK (`@google/genai`)
+- **Icons & UI**: Lucide React, React Hot Toast
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🚀 Getting Started
 
-## Learn More
+### Prerequisites
 
-To learn more about Next.js, take a look at the following resources:
+- Node.js 18+ installed
+- A PostgreSQL database URL (we recommend Neon)
+- A Google Gemini API Key (from Google AI Studio)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Installation
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Clone the repository and install dependencies:
+   ```bash
+   npm install
+   ```
 
-## Deploy on Vercel
+2. Set up your environment variables by creating a `.env` file at the root of the project:
+   ```env
+   DATABASE_URL="postgresql://username:password@your-neon-hostname.neon.tech/neondb?sslmode=require"
+   NEXTAUTH_SECRET="your-super-secret-key"
+   NEXTAUTH_URL="http://localhost:3000"
+   GEMINI_API_KEY="your-gemini-api-key"
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+3. Push the Prisma schema to your database to create the necessary tables:
+   ```bash
+   npx prisma db push
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+4. Populate the database with initial college data:
+   ```bash
+   npx prisma db seed
+   ```
+
+5. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+6. Open [http://localhost:3000](http://localhost:3000) in your browser to see the application!
+
+## 📂 Project Structure
+
+- `/src/app`: Next.js App Router pages and API routes
+- `/src/components`: Reusable UI components (Navbar, CollegeCard, etc.)
+- `/src/lib`: Utility functions and Prisma client initialization
+- `/src/store`: Zustand state management for the comparison feature
+- `/prisma`: Database schema and seed scripts
